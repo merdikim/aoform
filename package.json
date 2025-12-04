@@ -9,8 +9,8 @@
   "scripts": {
     "aoform": "node bin/aoform.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "AF (Autonomous Finance)",
+  "license": "MIT",
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.59",
     "commander": "^12.0.0",
