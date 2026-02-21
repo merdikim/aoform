@@ -1,27 +1,22 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-export const initCommand = async () => {
-  const processesYamlPath = path.join(process.cwd(), 'processes.yaml');
+export const initCommand = async (options = {}) => {
+  const name = options.name?.trim();
+  const fileName = name
+    ? (name.endsWith('.yaml') || name.endsWith('.yml') ? name : `${name}.yaml`)
+    : 'processes.yaml';
+  const configFilePath = path.join(process.cwd(), fileName);
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const templatePath = path.resolve(__dirname, '../templates/processes.yaml');
 
   try {
-    await fs.access(processesYamlPath);
-    console.log('processes.yaml file already exists.');
+    await fs.access(configFilePath);
+    console.log(`${path.basename(configFilePath)} file already exists.`);
   } catch {
-    const defaultProcessesYaml = `
-# Example processes.yaml file
-#
-# - name: process1
-#   file: path/to/process1.lua
-#   scheduler: scheduler_address
-#   tags:
-#     - name: Tag1
-#       value: Value1
-#     - name: Tag2
-#       value: Value2
-`.trim();
-
-    await fs.writeFile(processesYamlPath, defaultProcessesYaml, 'utf-8');
-    console.log('processes.yaml file created successfully.');
+    const template = await fs.readFile(templatePath, 'utf-8');
+    await fs.writeFile(configFilePath, template, 'utf-8');
+    console.log(`${path.basename(configFilePath)} file created successfully.`);
   }
 };

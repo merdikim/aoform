@@ -1,8 +1,31 @@
 # AOForm
 
-> **⚠️ Archive Notice**: This repository is archived and no longer maintained. It was originally developed by [AF (Autonomous Finance)](https://autonomous.finance). This project is provided as-is for historical reference and educational purposes.
+> This repository is a fork of AOForm originally developed by [AF (Autonomous Finance)](https://autonomous.finance).
+> It is maintained independently and includes additional/custom functionality beyond the original project.
 
 AOForm is a tool to deploy a set of processes to AO. These can be defined in a `processes.yaml` file. It uses a statefile to keep track of deployed processes and only updates code when needed.
+
+## Project structure
+
+```text
+bin/
+  aoform.js                 # executable entrypoint
+src/
+  cli/                      # command registration and CLI runner
+  commands/                 # command handlers (`deploy`, `init`)
+  core/
+    deploy/                 # deployment workflow modules
+    lua/                    # Lua packing utilities
+  templates/                # starter templates (used by `init`)
+```
+
+### Key files
+
+- `src/cli/createProgram.js`: defines commands and options.
+- `src/core/deploy/index.js`: high-level deploy orchestration.
+- `src/core/deploy/spawnProcess.js`: process spawn behavior with retries.
+- `src/core/deploy/deploySource.js`: source upload and eval flow.
+- `src/core/lua/packLua.js`: Lua dependency packing.
 
 ## Installation
 
@@ -13,9 +36,9 @@ npm install --save-dev aoform
 ## Usage
 
 1. Install in your AO project
-2. Create a `processes.yaml` in your project root
+2. Create a config file in your project root (`npx aoform init --name my-processes`)
 3. Set your wallet (`export WALLET_JSON="$(cat ~/.aos.json)"`)
-4. Run the deploy script (`npx aoform apply`)
+4. Run the deploy script (`npx aoform deploy`)
 
 ## Configuration
 
@@ -24,7 +47,7 @@ The configuration for the deploy script is defined in the `processes.yaml` file.
 ## Example processes.yaml
 
 ```yaml
-- name: dexi-monitor-test-v2-8
+- name: My-App-V2
   file: build/output.lua
   prerun: reset-modules.lua
   resetModules: true
@@ -32,7 +55,7 @@ The configuration for the deploy script is defined in the `processes.yaml` file.
   module: cNlipBptaF9JeFAf4wUmpi43EojNanIBos3EfNrEOWo
   tags:
     - name: Process-Type
-      value: Dexi-Aggregator-Test
+      value: My App 
     - name: Cron-Interval
       value: 10-minute
     - name: Cron-Tag-Action
@@ -53,6 +76,10 @@ The configuration for the deploy script is defined in the `processes.yaml` file.
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contributor setup and architecture notes.
 
 ## Original Developer
 
