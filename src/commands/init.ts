@@ -1,9 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import type { OptionValues } from 'commander';
 
-export const initCommand = async (options = {}) => {
-  const name = options.name?.trim();
+export const initCommand = async (options: OptionValues = {}) => {
+  const name = (options.name as string | undefined)?.trim();
   const fileName = name
     ? (name.endsWith('.yaml') || name.endsWith('.yml') ? name : `${name}.yaml`)
     : 'processes.yaml';

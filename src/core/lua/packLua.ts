@@ -1,21 +1,15 @@
 import path from 'path';
 import fs from 'fs';
 
-/**
- * @typedef Module
- * @property {string} name
- * @property {string} path
- * @property {string|undefined} content
- */
+interface LuaModule {
+  name: string;
+  path: string;
+  content?: string;
+}
 
-/**
- * @param {Module[]} project
- * @returns {[string, Module[]]}
- */
-export function createExecutableFromProject(project) {
-  const getModFnName = (name) => name.replace(/\./g, '_').replace(/^_/, '');
-  /** @type {Module[]} */
-  const contents = [];
+export function createExecutableFromProject(project: LuaModule[]): [string, LuaModule[]] {
+  const getModFnName = (name: string): string => name.replace(/\./g, '_').replace(/^_/, '');
+  const contents: LuaModule[] = [];
 
   for (let i = 0; i < project.length - 1; i++) {
     const mod = project[i];
@@ -33,23 +27,18 @@ export function createExecutableFromProject(project) {
   contents.push(project[project.length - 1]);
 
   return [
-    contents.reduce((acc, con) => acc + '\n\n' + con.content, ''),
+    contents.reduce((acc, con) => acc + '\n\n' + (con.content || ''), ''),
     contents,
   ];
 }
 
-/**
- * Create the project structure from the main file's content.
- * @param {string} mainFile
- * @returns {Module[]}
- */
-export function createProjectStructure(mainFile) {
-  const sorted = [];
+export function createProjectStructure(mainFile: string): LuaModule[] {
+  const sorted: LuaModule[] = [];
   const cwd = path.dirname(mainFile);
 
-  const isSorted = (node) => sorted.find((sortedNode) => sortedNode.path === node.path);
+  const isSorted = (node: LuaModule) => sorted.find((sortedNode) => sortedNode.path === node.path);
 
-  function dfs(currentNode) {
+  function dfs(currentNode: LuaModule): void {
     const unvisitedChildNodes = exploreNodes(currentNode, cwd).filter((node) => !isSorted(node));
 
     for (let i = 0; i < unvisitedChildNodes.length; i++) {
@@ -61,24 +50,18 @@ export function createProjectStructure(mainFile) {
     }
   }
 
-  dfs({ path: mainFile });
+  dfs({ name: mainFile, path: mainFile });
 
   return sorted.filter((mod) => mod.content !== undefined);
 }
 
-/**
- * Find child nodes for a node (a module).
- * @param {Module} node
- * @param {string} cwd
- * @returns {Module[]}
- */
-function exploreNodes(node, cwd) {
+function exploreNodes(node: LuaModule, cwd: string): LuaModule[] {
   if (!fs.existsSync(node.path)) return [];
 
   node.content = fs.readFileSync(node.path, 'utf-8');
 
   const requirePattern = /(?<!^.*--.*)(?<=(require( *)(\n*)(\()?( *)("|'))).*(?=("|'))/gm;
-  const requiredModules = node.content.match(requirePattern)?.map((mod) => ({
+  const requiredModules: LuaModule[] = node.content.match(requirePattern)?.map((mod) => ({
     name: mod,
     path: path.join(cwd, mod.replace(/\./g, '/') + '.lua'),
     content: undefined,
@@ -87,7 +70,7 @@ function exploreNodes(node, cwd) {
   return requiredModules;
 }
 
-export function pack(startFile) {
+export function pack(startFile: string): string {
   const projectStructure = createProjectStructure(startFile);
   const [executable] = createExecutableFromProject(projectStructure);
   return executable;

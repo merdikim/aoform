@@ -1,5 +1,6 @@
 import { Command } from 'commander';
-import { version} from '../constants.js'
+import { version } from '../constants.js';
+import type { OptionValues } from 'commander';
 
 export function createProgram() {
   const program = new Command();
@@ -13,7 +14,7 @@ export function createProgram() {
     .command('init')
     .description('Initialize a new processes.yaml file')
     .option('-n, --name <name>', 'Create <name>.yaml (default: processes.yaml)')
-    .action(async (options) => {
+    .action(async (options: OptionValues) => {
       const { initCommand } = await import('../commands/init.js');
       await initCommand(options);
     });
@@ -22,7 +23,9 @@ export function createProgram() {
     .command('deploy')
     .description('Deploy or update processes')
     .option('-f, --file <path>', 'Specify a custom processes.yaml file')
-    .action(async (options) => {
+    .option('-u, --url <url>', 'Specify a HyperBEAM node URL')
+    .option('-s, --scheduler <scheduler>', 'Specify a scheduler')
+    .action(async (options: OptionValues) => {
       const { deployCommand } = await import('../commands/deploy.js');
       await deployCommand(options);
     });

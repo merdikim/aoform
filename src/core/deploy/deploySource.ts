@@ -1,11 +1,17 @@
 import { buildLuaCode } from './luaCode.js';
 import { getStringHash } from './hash.js';
+import type { DeployState, ProcessConfig, ProcessDirectory } from '../../types.js';
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function deploySource(ao, processInfo, state, signer, directory) {
+export async function deploySource(
+  ao: any,
+  processInfo: ProcessConfig,
+  state: DeployState,
+  directory: ProcessDirectory
+): Promise<void> {
   const name = processInfo.name;
   const processId = directory[name];
   if (!processId) {
@@ -31,10 +37,7 @@ export async function deploySource(ao, processInfo, state, signer, directory) {
         process: processId,
         data: luaCode,
         tags: [{ name: 'Action', value: 'Eval' }],
-        signer,
       });
-      console.log(`Successfully sent 'eval' action for process '${name}'.`);
-      console.log(messageId);
 
       const result = await ao.result({
         process: processId,
@@ -45,10 +48,11 @@ export async function deploySource(ao, processInfo, state, signer, directory) {
         throw new Error(`Error on 'eval' action: ${JSON.stringify(result.Error)}`);
       }
 
-      console.log(`Successfully sent 'eval' action for process '${name}'.`);
-      console.log('Eval message id', messageId);
-      console.log('view result on Lunar Explorer:');
-      console.log(`https://lunar.ar.io/#/explorer/${messageId}`);
+      console.log('message ID', messageId)
+      console.log('result', result)
+
+      console.log(`Successfully sent 'Eval' action for process '${name}'.`);
+      console.log(`view result on Lunar Explorer: https://lunar.ar.io/#/explorer/${messageId}`);
 
       state[name] = { processId, hash: currentHash };
       return;

@@ -1,15 +1,23 @@
-function mapTags(tags, directory) {
+import { scheduler } from '../../constants.js';
+import type { DeployState, ProcessConfig, ProcessDirectory, Tag } from '../../types.js';
+
+function mapTags(tags: Tag[] | undefined, directory: ProcessDirectory): Tag[] {
   return (tags || []).map((tag) => {
     if (!directory[tag.value]) return tag;
     return { ...tag, value: directory[tag.value] };
   });
 }
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function spawnProcess(ao, processInfo, state, signer, directory) {
+export async function spawnProcess(
+  ao: any,
+  processInfo: ProcessConfig,
+  state: DeployState,
+  directory: ProcessDirectory
+): Promise<string> {
   const name = processInfo.name;
   const tags = mapTags(processInfo.tags, directory);
 
@@ -22,7 +30,6 @@ export async function spawnProcess(ao, processInfo, state, signer, directory) {
   console.log('Spawning process...', {
     module: processInfo.module,
     scheduler: processInfo.scheduler,
-    signer,
     tags,
   });
 
@@ -34,8 +41,7 @@ export async function spawnProcess(ao, processInfo, state, signer, directory) {
     try {
       const processId = await ao.spawn({
         module: processInfo.module,
-        scheduler: processInfo.scheduler,
-        signer,
+        scheduler, //: processInfo.scheduler,
         tags,
       });
       console.log('Spawned process:', processId);

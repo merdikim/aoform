@@ -8,12 +8,13 @@
    ```
 2. Run the CLI locally:
    ```bash
+   npm run build
    npm run aoform -- --help
    ```
 
 ## Architecture overview
 
-- `bin/aoform.js` only boots the CLI runtime.
+- `bin/aoform.ts` only boots the CLI runtime.
 - `src/cli/` owns command definitions and parsing.
 - `src/commands/` adapts CLI options to core operations.
 - `src/core/deploy/` contains deploy workflow modules (config/state IO, spawn, source deploy).
