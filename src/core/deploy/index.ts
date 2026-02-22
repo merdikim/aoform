@@ -3,13 +3,12 @@ import { connect, createDataItemSigner } from '@permaweb/aoconnect';
 import { loadProcesses, loadState, saveState } from './io.js';
 import { spawnProcess } from './spawnProcess.js';
 import { deploySource } from './deploySource.js';
-import { default_hb_url, default_scheduler, version } from '../../constants.js';
+import { default_hb_url, default_scheduler } from '../../constants.js';
 import type { ProcessDirectory } from '../../types.js';
 
 dotenv.config();
 
 export async function deployProcesses({file, url, scheduler}: {file?: string, url?: string, scheduler?: string}) {
-  console.log(`aoform v${version}`);
 
   if (!process.env.WALLET_JSON) {
     throw new Error('Missing WALLET_JSON environment variable. Please provide wallet JSON in WALLET_JSON.');

@@ -1,5 +1,4 @@
 import { Command } from 'commander';
-import { version } from '../constants.js';
 import type { OptionValues } from 'commander';
 
 export function createProgram() {
@@ -8,7 +7,6 @@ export function createProgram() {
   program
     .name('aoform')
     .description('A tool for managing AO processes')
-    .version(version);
 
   program
     .command('init')
