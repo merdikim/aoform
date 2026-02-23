@@ -1,6 +1,6 @@
 {
   "name": "aoform-toolkit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI toolkit to deploy and update AO processes from YAML configs",
   "keywords": [
     "ao",
