@@ -42,9 +42,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          RANGE="${{ github.event.before }}..${{ github.sha }}"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            RANGE="$(git rev-list --max-count=20 HEAD | tail -n 1)..HEAD"
+            LAST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "")"
+            if [ -z "$LAST_TAG" ]; then
+              RANGE="$(git rev-list --max-parents=0 HEAD)..HEAD"
+            else
+              RANGE="${LAST_TAG}..HEAD"
+            fi
+          else
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
           fi
 
           MESSAGES="$(git log --format=%B ${RANGE})"
@@ -59,29 +65,35 @@ jobs:
           echo "level=$BUMP" >> "$GITHUB_OUTPUT"
           echo "Selected bump: $BUMP"
 
+      - name: Check if version already published
+        id: npmcheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          if npm view "$(node -p "require('./package.json').name")@${CURRENT_VERSION}" version 2>/dev/null | grep -qF "${CURRENT_VERSION}"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Version ${CURRENT_VERSION} already exists on npm — will bump"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Version ${CURRENT_VERSION} not yet published — skipping bump"
+          fi
+
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # ---------------------------------------
-      # Bump only if version not already published
-      # ---------------------------------------
       - name: Bump version and create tag
-        if: steps.npmcheck.outputs.exists == 'false'
+        if: steps.npmcheck.outputs.exists == 'true'
         run: |
           npm version "${{ steps.bump.outputs.level }}" -m "chore(release): %s [skip ci]"
 
-      # ---------------------------------------
-      # Publish FIRST
-      # ---------------------------------------
+      - name: Push release commit and tag
+        if: steps.npmcheck.outputs.exists == 'true'
+        run: git push --follow-tags
+
       - name: Publish to npm
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # ---------------------------------------
-      # Push commit + tag ONLY if publish succeeded
-      # ---------------------------------------
-      - name: Push release commit and tag
-        run: git push --follow-tags
