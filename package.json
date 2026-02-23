@@ -1,21 +1,56 @@
 {
-  "name": "aoform",
-  "version": "1.0.7",
-  "description": "",
-  "main": "main.js",
+  "name": "aoform-toolkit",
+  "version": "1.0.0",
+  "description": "CLI toolkit to deploy and update AO processes from YAML configs",
+  "keywords": [
+    "ao",
+    "arweave",
+    "cli",
+    "deployment",
+    "lua",
+    "hyperBEAM"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merdikim/aoform.git"
+  },
+  "homepage": "https://github.com/merdikim/aoform#readme",
+  "bugs": {
+    "url": "https://github.com/merdikim/aoform/issues"
+  },
   "bin": {
-    "aoform": "bin/aoform.js"
+    "aoform": "dist/bin/aoform.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
-    "aoform": "node bin/aoform.js"
+    "clean": "rm -rf dist",
+    "compile": "tsc -p tsconfig.json",
+    "build": "npm run clean && npm run compile && npm run copy:templates",
+    "copy:templates": "mkdir -p dist/src/templates && cp -R src/templates/. dist/src/templates/",
+    "aoform": "node dist/bin/aoform.js",
+    "start": "npm run build && node dist/bin/aoform.js",
+    "prepublishOnly": "npm run build"
   },
-  "author": "AF (Autonomous Finance)",
+  "author": "merdikim",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.18"
+  },
   "dependencies": {
-    "@permaweb/aoconnect": "^0.0.59",
+    "@permaweb/aoconnect": "^0.0.93",
     "commander": "^12.0.0",
     "dotenv": "^16.4.5",
     "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.19.11",
+    "typescript": "^5.7.2"
   },
   "type": "module"
 }

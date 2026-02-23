@@ -1,59 +1,113 @@
-# AOForm
+# aoform-toolkit
 
-> **⚠️ Archive Notice**: This repository is archived and no longer maintained. It was originally developed by [AF (Autonomous Finance)](https://autonomous.finance). This project is provided as-is for historical reference and educational purposes.
+`aoform-toolkit` is a CLI for deploying AO processes from YAML config files.
+It keeps a local state file and only re-sends source code when content changes.
 
-AOForm is a tool to deploy a set of processes to AO. These can be defined in a `processes.yaml` file. It uses a statefile to keep track of deployed processes and only updates code when needed.
+This project is a fork of AOForm originally developed by [AF (Autonomous Finance)](https://autonomous.finance), maintained independently with custom functionality.
 
-## Installation
+## Install
 
 ```bash
-npm install --save-dev aoform
+npm install --save-dev aoform-toolkit
 ```
 
-## Usage
+Use with `npx`:
 
-1. Install in your AO project
-2. Create a `processes.yaml` in your project root
-3. Set your wallet (`export WALLET_JSON="$(cat ~/.aos.json)"`)
-4. Run the deploy script (`npx aoform apply`)
+```bash
+npx aoform --help
+```
 
-## Configuration
+## Quick Start
 
-The configuration for the deploy script is defined in the `processes.yaml` file. This file is located in the root of your AO project.
+1. Create a config file:
 
-## Example processes.yaml
+```bash
+npx aoform init
+```
+
+2. Set wallet JSON:
+
+```bash
+export WALLET_JSON="$(cat ~/.aos.json)"
+```
+
+3. Deploy processes:
+
+```bash
+npx aoform deploy
+```
+
+## CLI Commands
+
+`aoform init`
+- Creates `processes.yaml` in the current directory.
+- Option: `-n, --name <name>` to create a custom YAML filename.
+
+`aoform deploy`
+- Deploys or updates processes from YAML config.
+- Options:
+  - `-f, --file <path>` custom YAML file path.
+  - `-u, --url <url>` custom HyperBEAM node URL.
+  - `-s, --scheduler <scheduler>` custom scheduler.
+
+## Configuration (`processes.yaml`)
+
+Top-level value must be an array of process entries.
 
 ```yaml
-- name: dexi-monitor-test-v2-8
+- name: My-App-V2
   file: build/output.lua
-  prerun: reset-modules.lua
   resetModules: true
-  scheduler: _GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA
   module: cNlipBptaF9JeFAf4wUmpi43EojNanIBos3EfNrEOWo
   tags:
     - name: Process-Type
-      value: Dexi-Aggregator-Test
-    - name: Cron-Interval
-      value: 10-minute
-    - name: Cron-Tag-Action
-      value: Cron-Minute-Tick
+      value: My-App
 ```
 
-## Options
+Fields:
+- `name` (required): logical process name used in state tracking.
+- `file` (required): Lua source file path.
+- `resetModules` (optional): unload modules before eval.
+- `module` (optional): AO module id.
+- `tags` (optional): spawn tags as `{ name, value }`.
 
-- `name`: Name of the process
-- `file`: Relative path to the main file to deploy
-- `prerun`: Relative path to a script that gets executed before the main file
-- `scheduler`: ID of the scheduler
-- `module`: ID of the module
-- `tags`: List of tags to spawn the process with
-- `resetModules`: If true, all modules except the standard ao library will be unloaded before your code is eval'ed (default: true)
-- `directory`: If true, the `aoform.directory` package will be enabled. This returns a table with process names as the keys, and process ids as the values. (default: false)
+## Environment Variables
+
+- `WALLET_JSON` (required): wallet JSON string used for signing.
+
+Example:
+
+```bash
+export WALLET_JSON="$(cat ~/.aos.json)"
+```
+
+Alternatively, use a `.env` file:
+
+```bash
+# .env
+WALLET_JSON={"address":"...","privateKey":"..."}
+```
+
+
+## State Files
+
+- Default state file: `state.yaml`
+- With a custom deploy file (for example `-f my-processes.yaml`): `state-my-processes.yaml`
+
+The state file stores process IDs and code hashes so unchanged processes are skipped on future deploys.
+
+## Local Development
+
+```bash
+npm install
+npm run build
+npm run aoform -- --help
+```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).
 
-## Original Developer
+## Contributing
 
-Originally developed by [AF (Autonomous Finance)](https://autonomous.finance).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
