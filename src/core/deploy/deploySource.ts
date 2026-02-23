@@ -48,11 +48,8 @@ export async function deploySource(
         throw new Error(`Error on 'eval' action: ${JSON.stringify(result.Error)}`);
       }
 
-      console.log('message ID', messageId)
-      console.log('result', result)
-
-      console.log(`Successfully sent 'Eval' action for process '${name}'.`);
-      console.log(`view result on Lunar Explorer: https://lunar.ar.io/#/explorer/${messageId}`);
+      console.log(`Successfully sent 'Eval' action for process '${name}'.`)
+      console.log(`view result on Lunar Explorer: https://lunar.ar.io/#/explorer/${processId}`);
 
       state[name] = { processId, hash: currentHash };
       return;
