@@ -6,7 +6,7 @@ export function createProgram() {
 
   program
     .name('aoform')
-    .description('A tool for managing AO processes')
+    .description('A tool for managing AO processes ⚙️')
 
   program
     .command('init')
