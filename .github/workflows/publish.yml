@@ -87,7 +87,10 @@ jobs:
       - name: Bump version and create tag
         if: steps.npmcheck.outputs.exists == 'true'
         run: |
-          npm version "${{ steps.bump.outputs.level }}" -m "chore(release): %s [skip ci]"
+          NEW_VERSION="$(npm version "${{ steps.bump.outputs.level }}" --no-git-tag-version)"
+          git add package.json package-lock.json
+          git commit -m "chore(release): ${NEW_VERSION} [skip ci]"
+          git tag -a "${NEW_VERSION}" -m "chore(release): ${NEW_VERSION} [skip ci]"
 
       - name: Push release commit and tag
         if: steps.npmcheck.outputs.exists == 'true'
