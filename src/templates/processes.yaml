@@ -2,8 +2,7 @@
 #
 # - name: process1
 #   file: path/to/process1.lua
-#   scheduler: scheduler_address
-#   module: module_address
+#   module: module_id
 #   tags:
 #     - name: Tag1
 #       value: Value1
