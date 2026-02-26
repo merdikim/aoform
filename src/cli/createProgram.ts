@@ -23,6 +23,7 @@ export function createProgram() {
     .option('-f, --file <path>', 'Specify a custom processes.yaml file')
     .option('-u, --url <url>', 'Specify a HyperBEAM node URL')
     .option('-s, --scheduler <scheduler>', 'Specify a scheduler')
+    .option('--wallet-path <path>', 'Specify a custom path to the wallet file')
     .action(async (options: OptionValues) => {
       const { deployCommand } = await import('../commands/deploy.js');
       await deployCommand(options);
