@@ -25,10 +25,14 @@ npx aoform --help
 npx aoform init
 ```
 
-2. Set wallet JSON:
+2. Provide a wallet (any one of these):
 
 ```bash
-export WALLET_JSON="$(cat ~/.aos.json)"
+# Option A: explicit env var
+WALLET_JSON="your_wallet_json"
+
+# Option B: local wallet.json in your project
+./wallet.json #at the root of your project
 ```
 
 3. Deploy processes:
@@ -49,6 +53,7 @@ npx aoform deploy
   - `-f, --file <path>` custom YAML file path.
   - `-u, --url <url>` custom HyperBEAM node URL.
   - `-s, --scheduler <scheduler>` custom scheduler.
+  - `--wallet-path <path>` custom wallet JSON file path.
 
 ## Configuration (`processes.yaml`)
 
@@ -71,9 +76,13 @@ Fields:
 - `module` (optional): AO module id.
 - `tags` (optional): spawn tags as `{ name, value }`.
 
-## Environment Variables
+## Wallet Resolution Order
 
-- `WALLET_JSON` (required): wallet JSON string used for signing.
+When running `aoform deploy`, wallet JSON is resolved in this order:
+
+1. `--wallet-path <path>`
+2. `./wallet.json` in the current working directory
+3. `WALLET_JSON` environment variable
 
 Example:
 
