@@ -8,13 +8,15 @@ import type { ProcessDirectory } from '../../types.js';
 
 dotenv.config();
 
-export async function deployProcesses({file, url, scheduler}: {file?: string, url?: string, scheduler?: string}) {
+export async function deployProcesses({file, url, scheduler, walletJson}: {file?: string, url?: string, scheduler?: string, walletJson?: string}) {
 
-  if (!process.env.WALLET_JSON) {
-    throw new Error('Missing WALLET_JSON environment variable. Please provide wallet JSON in WALLET_JSON.');
+  const resolvedWalletJson = walletJson ?? process.env.WALLET_JSON;
+
+  if (!resolvedWalletJson) {
+    throw new Error('Missing WALLET_JSON environment variable. Please provide wallet JSON via WALLET_JSON env var, specify --wallet-path flag, or create a wallet.json file at the root of your project.');
   }
 
-  const wallet = JSON.parse(process.env.WALLET_JSON) as unknown;
+  const wallet = JSON.parse(resolvedWalletJson) as unknown;
   const signer = createDataItemSigner(wallet as any);
 
   const processes = loadProcesses(file);
